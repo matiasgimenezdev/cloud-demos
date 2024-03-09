@@ -2,6 +2,12 @@
 REGION=us-east1
 ZONE=us-east1-b
 
+#? List GCP active projects
+gcloud projects list
+
+#? Set actual project
+gcloud config set project <PROJECT_ID>
+
 #? Connect to the VM instance using SSH
 gcloud compute ssh vm3 --zone=us-east1-b --ssh-key-file=./keys/id_rsa_example
 
