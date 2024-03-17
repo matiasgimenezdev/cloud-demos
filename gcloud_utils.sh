@@ -6,7 +6,7 @@ ZONE=us-east1-b
 gcloud compute ssh vm3 --zone=us-east1-b --ssh-key-file=./keys/id_rsa_example
 
 #? Connect to the VM instance using SSH.
-ssh -i .keys/id_rsa_example mgimenez@<VM_INSTANCE_IP>
+ssh -i ./keys/id_rsa_example mgimenez@<VM_INSTANCE_IP>
 
 #? List the existing public IP addresses
 gcloud compute addresses list
