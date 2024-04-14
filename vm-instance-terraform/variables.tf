@@ -20,7 +20,7 @@ variable "zone" {
 
 variable "nodes" {
   type    = number
-  default = 1
+  default = 2
 }
 
 variable "metadata_startup_script" {
