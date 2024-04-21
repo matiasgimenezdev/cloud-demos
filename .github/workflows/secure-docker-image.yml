@@ -14,9 +14,11 @@ jobs:
 
             - name: Install dependencies
               run: npm install
+              working-directory: ./secure-docker-image
 
             - name: Run vulnerability check
-              run: sh ./secure-docker-image/check-dependencies.sh
+              run: sh check-dependencies.sh
+              working-directory: ./secure-docker-image
 
             - name: Login to Docker Hub
               uses: docker/login-action@v2
