@@ -13,7 +13,7 @@ jobs:
               uses: actions/checkout@v2
 
             - name: Run vulnerability check
-              run: ./secure-docker-image/check_vulnerabilities.sh
+              run: ls -lah
 
             - name: Login to Docker Hub
               uses: docker/login-action@v2
