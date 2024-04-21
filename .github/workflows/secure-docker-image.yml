@@ -12,6 +12,9 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v2
 
+            - name: Install dependencies
+              run: npm install
+
             - name: Run vulnerability check
               run: sh ./secure-docker-image/check-dependencies.sh
 
