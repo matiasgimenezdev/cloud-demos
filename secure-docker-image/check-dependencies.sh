@@ -18,4 +18,4 @@ if [ $(echo "$outdated_output" | wc -l) -gt 1 ]; then
     exit 1
 fi
 
-echo "Dependencies OK"
+echo "Dependencies OK."
