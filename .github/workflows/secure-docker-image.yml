@@ -1,0 +1,29 @@
+name: Secure docker image
+
+on:
+    push:
+        branches: ['main']
+        paths: ['secure-docker-image/**']
+jobs:
+    build-and-push-docker-image:
+        name: Build and Push Docker Image
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Run vulnerability check
+              run: ./check_vulnerabilities.sh
+
+            - name: Login to Docker Hub
+              uses: docker/login-action@v2
+              with:
+                  username: ${{ secrets.DOCKER_HUB_USERNAME }}
+                  password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+            - name: Build and push Docker image
+              uses: docker/build-push-action@v2
+              with:
+                  context: ./secure-docker-image
+                  push: true
+                  tags: ${{ secrets.DOCKER_HUB_USERNAME }}/task-runner
