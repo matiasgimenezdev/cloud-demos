@@ -17,4 +17,4 @@ USER user
 
 CMD [ "npm", "run", "dev" ]
 
-EXPOSE 3001
+EXPOSE 3000
