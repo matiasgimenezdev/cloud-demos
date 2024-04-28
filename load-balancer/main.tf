@@ -1,16 +1,20 @@
+# Locals: Define local values used in the configuration file.
 locals {
+  # Define Linux-specific metadata for virtual machine instances.
   linux_metadata = templatefile("${path.module}/scripts/linux-metadata.tpl", {})
 }
+
+# Data - Google Client OpenID Userinfo: Collects information about the currently authenticated user.
 data "google_client_openid_userinfo" "me" {}
-#
-# Credentials
+
+# Provider - Google: Configures the provider for Google Cloud Platform (GCP) resources in Terraform.
 provider "google" {
   credentials = var.credentials
   project     = var.project
   region      = var.region
 }
 
-# SSH Key Generation
+# SSH Key Generation: Generates a new SSH key and saves it to a local file with appropriate permissions.
 resource "tls_private_key" "ssh" {
   algorithm = "RSA"
   rsa_bits  = 4096
@@ -22,7 +26,11 @@ resource "local_file" "ssh_private_key_pem" {
   file_permission = "0600"
 }
 
-# Backend Services
+# Backend Service and HTTP Health Check: Configures a backend service and an HTTP health check for virtual machine instances.
+# A Backend Service is a resource that defines how incoming requests directed to a specific application or service are handled. 
+# It is responsible for routing incoming traffic to one or more virtual machine (VM) instances or instance groups
+#
+# Health Check is a feature used to monitor the status and health of the instances or services behind a Backend Service
 resource "google_compute_backend_service" "rbs" {
   name             = var.be_name
   port_name        = var.be_port_name
@@ -43,8 +51,8 @@ resource "google_compute_http_health_check" "default" {
   check_interval_sec = 1
   timeout_sec        = 1
 }
-#
-# Regional MIG
+
+# Regional MIG: Configures a regional managed instance group (MIG) for virtual machine instances.
 resource "google_compute_region_instance_group_manager" "rmig" {
   name               = var.rmig_name
   base_instance_name = var.base_instance_name
@@ -71,8 +79,8 @@ resource "google_compute_region_instance_group_manager" "rmig" {
   }
 
 }
-#
-# Template creation
+
+# Template creation: Creates an instance template for virtual machine instances.
 resource "google_compute_instance_template" "cit" {
   name_prefix          = var.prefix
   description          = var.desc
@@ -88,12 +96,13 @@ resource "google_compute_instance_template" "cit" {
     on_host_maintenance = "MIGRATE"
   }
 
-  // Create a new boot disk from an image (Lets use one created by Packer)
+  # Create a new boot disk from an image (Let's use one created by Packer)
   disk {
     source_image = var.source_image
     auto_delete  = true
     boot         = true
   }
+
   metadata_startup_script = local.linux_metadata
 
   metadata = {
@@ -118,7 +127,7 @@ resource "google_compute_instance_template" "cit" {
   }
 }
 
-# Compute Healthcheck
+# Compute Healthcheck: Configures a health check for virtual machine instances.
 resource "google_compute_health_check" "default" {
   name               = var.hc_name
   check_interval_sec = 1
@@ -128,8 +137,8 @@ resource "google_compute_health_check" "default" {
     port = var.hc_port
   }
 }
-#
-# Regional MIG AutoScaler
+
+# Regional MIG AutoScaler: Configures an autoscaler for the regional managed instance group (MIG).
 resource "google_compute_region_autoscaler" "cras" {
 
   name   = "test-autoscaler"
@@ -146,8 +155,8 @@ resource "google_compute_region_autoscaler" "cras" {
     }
   }
 }
-#
-# Global Forwarding Rule
+
+# Global Forwarding Rule: Configures a global forwarding rule for the load balancer.
 resource "google_compute_global_forwarding_rule" "gfr" {
   name       = var.gfr_name
   target     = google_compute_target_http_proxy.thp.self_link
@@ -161,8 +170,8 @@ resource "google_compute_url_map" "urlmap" {
   name            = var.urlmap_name
   default_service = google_compute_backend_service.rbs.self_link
 }
-#
-# Firewall rules for specific Tags
+
+# Firewall rules for specific Tags: Configures firewall rules to allow traffic to specified ports.
 resource "google_compute_firewall" "default" {
   name    = "${var.network}-${var.fwr_name}"
   network = var.network
