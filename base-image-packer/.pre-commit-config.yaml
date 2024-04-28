@@ -1,0 +1,25 @@
+repos:
+    - repo: https://github.com/gitleaks/gitleaks
+      rev: v8.18.2
+      hooks:
+          - id: gitleaks
+    - repo: https://github.com/antonbabenko/pre-commit-terraform
+      rev: v1.89.1 # Get the latest from: https://github.com/antonbabenko/pre-commit-terraform/releases
+      hooks:
+          - id: terraform_docs
+            args: ['markdown', 'table', '.']
+          - id: terraform_fmt
+            args:
+                - --args=-no-color
+                - --args=-diff
+                - --args=-write=false
+          - id: terraform_tflint
+            args:
+                - --args=--config=${PWD}/base-image-packer/.tflint.hcl
+
+          - id: terraform_validate
+            args:
+                - --args=-json
+                - --args=-no-color
+          # - id: terraform_tfsec is deprecated (x)
+          # - id: terraform_trivy => use this
