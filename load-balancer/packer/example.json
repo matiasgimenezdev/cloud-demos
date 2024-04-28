@@ -1,0 +1,30 @@
+{
+	"variables": {
+		"gcloud_account_json": "../credentials.json",
+		"gcloud_project_id": "braided-complex-416718"
+	},
+	"builders": [
+		{
+			"type": "googlecompute",
+			"account_file": "{{user `gcloud_account_json`}}",
+			"project_id": "{{user `gcloud_project_id`}}",
+			"ssh_username": "ubuntu",
+			"source_image_family": "ubuntu-2204-lts",
+			"image_name": "custom-golden-{{timestamp}}",
+			"zone": "us-east1-b",
+			"machine_type": "n1-standard-1",
+			"disk_size": "20",
+			"on_host_maintenance": "TERMINATE"
+		}
+	],
+	"provisioners": [
+		{
+			"type": "shell",
+			"inline": [
+				"sudo apt-get update",
+				"sudo apt-get install -y nginx",
+				"sudo apt-get install -y stress-ng"
+			]
+		}
+	]
+}
