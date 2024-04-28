@@ -28,6 +28,8 @@ sh ssh-connect.sh
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.4.5 |
 | <a name="requirement_google"></a> [google](#requirement\_google) | >=4.60.0 |
+| <a name="requirement_local"></a> [local](#requirement\_local) | ~> 2.0 |
+| <a name="requirement_tls"></a> [tls](#requirement\_tls) | ~> 3.0 |
 
 ## Providers
 
@@ -76,5 +78,5 @@ No modules.
 | <a name="output_instance_public_ips"></a> [instance\_public\_ips](#output\_instance\_public\_ips) | The public IP addresses of the VM instances |
 | <a name="output_ssh_private_key"></a> [ssh\_private\_key](#output\_ssh\_private\_key) | n/a |
 | <a name="output_ssh_public_key"></a> [ssh\_public\_key](#output\_ssh\_public\_key) | n/a |
-| <a name="output_username"></a> [username](#output\_username) | Email of the authenticated user. |
+| <a name="output_username"></a> [username](#output\_username) | Email of the authenticated user |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

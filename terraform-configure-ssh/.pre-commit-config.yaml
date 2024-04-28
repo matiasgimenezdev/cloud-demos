@@ -1,17 +1,6 @@
-# repos:
-#     - repo: https://github.com/gruntwork-io/pre-commit
-#       rev: v0.1.23 # Get the latest from: https://github.com/gruntwork-io/pre-commit/releases
-#       hooks:
-#           - id: tflint
-#             args:
-#                 - '--module'
-#                 - '--deep'
-#                 - '--config=.tflint.hcl'
-#           - id: terraform-validate
-#           - id: terraform-fmt
 repos:
     - repo: https://github.com/gitleaks/gitleaks
-      rev: v8.18.0
+      rev: v8.18.2
       hooks:
           - id: gitleaks
     - repo: https://github.com/antonbabenko/pre-commit-terraform
@@ -19,3 +8,18 @@ repos:
       hooks:
           - id: terraform_docs
             args: ['markdown', 'table', '.']
+          - id: terraform_fmt
+            args:
+                - --args=-no-color
+                - --args=-diff
+                - --args=-write=false
+          - id: terraform_tflint
+            args:
+                - --args=--config=${PWD}/terraform-configure-ssh/.tflint.hcl
+
+          - id: terraform_validate
+            args:
+                - --args=-json
+                - --args=-no-color
+          # - id: terraform_tfsec is deprecated (x)
+          # - id: terraform_trivy => use this

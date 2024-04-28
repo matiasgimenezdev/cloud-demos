@@ -4,6 +4,16 @@ terraform {
       source  = "hashicorp/google"
       version = ">=4.60.0"
     }
+
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.0"
+    }
+
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 3.0" // Puedes especificar la versión o el rango de versiones que deseas utilizar
+    }
   }
 
   required_version = ">= 1.4.5"

@@ -9,7 +9,7 @@ output "instance_ip" {
 
 output "username" {
   value       = split("@", data.google_client_openid_userinfo.me.email)[0]
-  description = "Email of the authenticated user."
+  description = "Email of the authenticated user"
 }
 
 
