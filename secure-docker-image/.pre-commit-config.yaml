@@ -1,0 +1,13 @@
+repos:
+    - repo: https://github.com/gitleaks/gitleaks
+      rev: v8.18.2
+      hooks:
+          - id: gitleaks
+    - repo: local
+      hooks:
+          - id: sonarqube-pre-commit
+            name: Sonarqube pre-commit script
+            entry: ./secure-docker-image/pre-commit-sonarqube.sh
+            language: system
+            pass_filenames: false
+            types: [shell]
