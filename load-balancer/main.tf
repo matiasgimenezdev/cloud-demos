@@ -133,7 +133,7 @@ resource "google_compute_instance_template" "cit" {
   }
 }
 
-# Compute Healthcheck: Configures a health check for virtual machine instances.
+# Configures a health check for virtual machine instances.
 resource "google_compute_health_check" "default" {
   name               = var.hc_name
   check_interval_sec = 1
@@ -144,9 +144,8 @@ resource "google_compute_health_check" "default" {
   }
 }
 
-# Regional MIG AutoScaler: Configures an autoscaler for the regional managed instance group (MIG).
+# Configures an auto-scaler for the regional managed instance group (MIG).
 resource "google_compute_region_autoscaler" "cras" {
-
   name   = "test-autoscaler"
   region = var.region
   target = google_compute_region_instance_group_manager.rmig.self_link
@@ -162,22 +161,24 @@ resource "google_compute_region_autoscaler" "cras" {
   }
 }
 
-# Global Forwarding Rule: Configures a global forwarding rule for the load balancer.
+# Configures a global forwarding rule for the load balancer.
 resource "google_compute_global_forwarding_rule" "gfr" {
   name       = var.gfr_name
   target     = google_compute_target_http_proxy.thp.self_link
   port_range = var.gfr_portrange
 }
+
 resource "google_compute_target_http_proxy" "thp" {
   name    = var.thp_name
   url_map = google_compute_url_map.urlmap.self_link
 }
+
 resource "google_compute_url_map" "urlmap" {
   name            = var.urlmap_name
   default_service = google_compute_backend_service.rbs.self_link
 }
 
-# Firewall rules for specific Tags: Configures firewall rules to allow traffic to specified ports.
+# Configures firewall rules to allow traffic to specified ports.
 resource "google_compute_firewall" "default" {
   name    = "${var.network}-${var.fwr_name}"
   network = var.network
