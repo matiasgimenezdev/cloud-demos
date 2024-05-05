@@ -1,36 +1,37 @@
-# Locals: Define local values used in the configuration file.
+# Define local variables. They can only be accessed on this module.
 locals {
   # Define Linux-specific metadata for virtual machine instances.
   linux_metadata = templatefile("${path.module}/scripts/linux-metadata.tpl", {})
 }
 
-# Data - Google Client OpenID Userinfo: Collects information about the currently authenticated user.
+# Collects information about the currently authenticated user.
 data "google_client_openid_userinfo" "me" {}
 
-# Provider - Google: Configures the provider for Google Cloud Platform (GCP) resources in Terraform.
+# Configures the provider for Google Cloud Platform (GCP) resources in Terraform.
 provider "google" {
   credentials = var.credentials
   project     = var.project
   region      = var.region
 }
 
-# SSH Key Generation: Generates a new SSH key and saves it to a local file with appropriate permissions.
+# Generates a new SSH key
 resource "tls_private_key" "ssh" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
+#  Saves the generated key to a local file with appropriate permissions.
 resource "local_file" "ssh_private_key_pem" {
   content         = tls_private_key.ssh.private_key_pem
   filename        = "${path.module}/.ssh/google_compute_engine"
   file_permission = "0600"
 }
 
-# Backend Service and HTTP Health Check: Configures a backend service and an HTTP health check for virtual machine instances.
-# A Backend Service is a resource that defines how incoming requests directed to a specific application or service are handled. 
-# It is responsible for routing incoming traffic to one or more virtual machine (VM) instances or instance groups
+# Configures a backend service and an HTTP health check for virtual machine instances.
 #
-# Health Check is a feature used to monitor the status and health of the instances or services behind a Backend Service
+# A Backend Service is a resource that defines how incoming requests directed to a specific application or service are handled. 
+# It is responsible for routing incoming traffic to one or more virtual machine (VM) instances or instance groups. 
+# Backend services are commonly used in load-balancing scenarios for the distribution of incoming requests across multiple instances.
 resource "google_compute_backend_service" "rbs" {
   name             = var.be_name
   port_name        = var.be_port_name
@@ -45,6 +46,9 @@ resource "google_compute_backend_service" "rbs" {
   health_checks = ["${google_compute_http_health_check.default.self_link}"]
 }
 
+# Health Check is a feature used to monitor the status and health of the instances or services behind a backend service.
+# If an instance fails its health check, it's automatically removed from the pool of available instances, ensuring that traffic 
+# is only directed to healthy instances.
 resource "google_compute_http_health_check" "default" {
   name               = var.hc_name
   request_path       = "/"
@@ -52,11 +56,12 @@ resource "google_compute_http_health_check" "default" {
   timeout_sec        = 1
 }
 
-# Regional MIG: Configures a regional managed instance group (MIG) for virtual machine instances.
+# Configures a regional managed instance group for virtual machine instances.
+# There are multiple instances located in different zones within a particular region.
 resource "google_compute_region_instance_group_manager" "rmig" {
   name               = var.rmig_name
   base_instance_name = var.base_instance_name
-  region             = var.region
+  region             = var.region # Inside this particular region
   target_size        = 1
 
   named_port {
@@ -80,7 +85,7 @@ resource "google_compute_region_instance_group_manager" "rmig" {
 
 }
 
-# Template creation: Creates an instance template for virtual machine instances.
+# Creates an instance template for virtual machine instances.
 resource "google_compute_instance_template" "cit" {
   name_prefix          = var.prefix
   description          = var.desc
@@ -89,7 +94,8 @@ resource "google_compute_instance_template" "cit" {
   tags                 = ["${var.tags}"]
   instance_description = var.desc_inst
   machine_type         = var.machine_type
-  can_ip_forward       = false // Whether to allow sending and receiving of packets with non-matching source or destination IPs. This defaults to false.
+  # Whether to allow sending and receiving of packets with non-matching source or destination IPs. This defaults to false.
+  can_ip_forward       = false 
 
   scheduling {
     automatic_restart   = true
@@ -127,7 +133,7 @@ resource "google_compute_instance_template" "cit" {
   }
 }
 
-# Compute Healthcheck: Configures a health check for virtual machine instances.
+# Configures a health check for virtual machine instances.
 resource "google_compute_health_check" "default" {
   name               = var.hc_name
   check_interval_sec = 1
@@ -138,9 +144,8 @@ resource "google_compute_health_check" "default" {
   }
 }
 
-# Regional MIG AutoScaler: Configures an autoscaler for the regional managed instance group (MIG).
+# Configures an auto-scaler for the regional managed instance group (MIG).
 resource "google_compute_region_autoscaler" "cras" {
-
   name   = "test-autoscaler"
   region = var.region
   target = google_compute_region_instance_group_manager.rmig.self_link
@@ -156,22 +161,24 @@ resource "google_compute_region_autoscaler" "cras" {
   }
 }
 
-# Global Forwarding Rule: Configures a global forwarding rule for the load balancer.
+# Configures a global forwarding rule for the load balancer.
 resource "google_compute_global_forwarding_rule" "gfr" {
   name       = var.gfr_name
   target     = google_compute_target_http_proxy.thp.self_link
   port_range = var.gfr_portrange
 }
+
 resource "google_compute_target_http_proxy" "thp" {
   name    = var.thp_name
   url_map = google_compute_url_map.urlmap.self_link
 }
+
 resource "google_compute_url_map" "urlmap" {
   name            = var.urlmap_name
   default_service = google_compute_backend_service.rbs.self_link
 }
 
-# Firewall rules for specific Tags: Configures firewall rules to allow traffic to specified ports.
+# Configures firewall rules to allow traffic to specified ports.
 resource "google_compute_firewall" "default" {
   name    = "${var.network}-${var.fwr_name}"
   network = var.network

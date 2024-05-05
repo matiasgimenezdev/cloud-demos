@@ -1,6 +1,8 @@
 # What does the Terraform script do?
 
-From the custom image, a template will be created and from that, we can create a managed instance group. This will deploy 3 identical instances based on our baked image. It will also inject metadata that will create a static web page that contains the server’s name, internal and external IP. Create a Firewall rule that will allow HTTP traffic to come to that group. This is useful if we want it all to reach our servers. Create a front-end and back-end service fronted by a load balancer and forwarding rules.
+From the custom image (using Packer), a template will be created and from that, we can create a managed instance group. This will deploy 3 identical instances based on our custom image. 
+
+It will also inject metadata that will create a static web page that contains the server’s name, internal and external IP. Create a Firewall rule that will allow HTTP traffic to come to that group. This is useful if we want it all to reach our servers. Create a front-end and back-end service fronted by a load balancer and forwarding rules.
 
 # Testing Auto-Healing
 
@@ -30,6 +32,7 @@ The stress tool as been installed in the golden image we've baked. To stress an 
 python3 -m venv ./env
 source ./env/bin/activate
 pip install -r requirements.txt
+python3 runner.py
 ```
 
 # Cleanup
