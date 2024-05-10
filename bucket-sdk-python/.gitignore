@@ -1,0 +1,7 @@
+credentials.json
+.terraform
+.terraform.lock.hcl
+terraform.tfstate.backup
+terraform.tfstate
+venv
+.history
